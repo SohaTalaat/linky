@@ -51,7 +51,7 @@ class AuthController extends Controller
 
         // Revoke old tokens
 
-        $user->token()->delete();
+        $user->tokens()->delete();
 
         $token = $user->createToken('api')->plainTextToken;
 
