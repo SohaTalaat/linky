@@ -17,10 +17,11 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->text('url');
             $table->string('title')->nullable();
-            $table->text('descripion')->nullable();
+            $table->text('description')->nullable();
             $table->string('site_name')->nullable();
             $table->string('image')->nullable();
             $table->string('favicon')->nullable();
+            $table->text('notes')->nullable();
 
             $table->string('status')->default(LinkStatus::SAVED->value);
             $table->boolean('is_favourite')->default(false);

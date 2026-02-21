@@ -33,7 +33,7 @@ class LinkFactory extends Factory
                 LinkStatus::READING->value,
                 LinkStatus::DONE->value,
             ]),
-            'is_favorite' => $this->faker->boolean(20),
+            'is_favourite' => $this->faker->boolean(20),
             'last_opened_at' => $this->faker->boolean(40) ? $this->faker->dateTimeBetween('-30 days', 'now') : null,
         ];
     }
