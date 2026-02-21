@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\LinkController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -11,4 +12,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    // Links
+
+    Route::apiResource('links', [LinkController::class]);
 });
