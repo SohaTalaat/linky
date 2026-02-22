@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreLinkRequest;
+use App\Http\Requests\UpdateLinkRequest;
 use App\Http\Resources\LinkResource;
 use App\Models\Link;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class LinkController extends Controller
@@ -62,32 +65,96 @@ class LinkController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreLinkRequest $request)
     {
-        //
+        $user = $request->user();
+        $data = $request->validated();
+
+        $link = Link::create([
+            'user_id' => $user->id,
+            'url' => $data['url'],
+            'title' => $data['title'] ?? null,
+            'notes' => $data['notes'] ?? null,
+            'status' => $data['status'] ?? 'saved',
+            'is_favourite' => $data['is_favourite'] ?? false
+        ]);
+
+        if (!empty($data['tags'])) {
+            $tagIds = $this->upsertUserTagsAndGetIds($user->id, $data['tags']);
+            $link->tags()->sync($tagIds);
+        }
+
+        return (new LinkResource($link->load('tags')))->response()->setStatusCode(201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, Link $link)
     {
-        //
+        $this->authorize('view', $link);
+
+        return new LinkResource($link->load('tags'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateLinkRequest $request, Link $link)
     {
-        //
+        $this->authorize('update', $link);
+
+        $data = $request->validated();
+
+        $link->fill($data);
+        $link->save();
+
+        if (array_key_exists('tags', $data)) {
+            $tagIds = $data['tags'] ? $this->upsertUserTagsAndGetIds($request->user()->id, $data['tags']) : [];
+
+            $link->tags()->sync($tagIds);
+        }
+
+        return new LinkResource($link->load('tags'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, Link $link)
     {
-        //
+        $this->authorize('delete', $link);
+
+        $link->delete();
+
+        return response()->json([
+            'message' => 'Deleted successfully.'
+        ]);
+    }
+
+    private function upsertUserTagsAndGetIds(int $userId, array $tagNames): array
+    {
+        $clean = collect($tagNames)
+            ->map(fn($t) => trim((string) $t))
+            ->filter()
+            ->map(fn($t) => mb_strtolower($t))
+            ->unique()
+            ->values();
+
+        if ($clean->isEmpty()) {
+            return [];
+        }
+
+        foreach ($clean as $name) {
+            Tag::firstOrCreate([
+                'user_id' => $userId,
+                'name' => $name
+            ]);
+        }
+
+        return Tag::where('user_id', $userId)
+            ->whereIn('name', $clean->all())
+            ->pluck('id')
+            ->all();
     }
 }
