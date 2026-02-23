@@ -9,6 +9,7 @@ use App\Http\Resources\LinkResource;
 use App\Models\Link;
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class LinkController extends Controller
 {
@@ -37,10 +38,13 @@ class LinkController extends Controller
         }
 
         if ($request->has('favourite')) {
-            $fav = filter_var($request->input('favourite', FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE));
-
+            $fav = filter_var(
+                $request->input('favourite'),
+                FILTER_VALIDATE_BOOLEAN,
+                FILTER_NULL_ON_FAILURE
+            );
             if (!is_null($fav)) {
-                $query->where('is_favorite', $fav);
+                $query->where('is_favourite', $fav);
             }
         }
 
@@ -76,14 +80,14 @@ class LinkController extends Controller
             'title' => $data['title'] ?? null,
             'notes' => $data['notes'] ?? null,
             'status' => $data['status'] ?? 'saved',
-            'is_favourite' => $data['is_favourite'] ?? false
+            'is_favourite' => $data['is_favourite'] ?? false,
         ]);
 
         if (!empty($data['tags'])) {
             $tagIds = $this->upsertUserTagsAndGetIds($user->id, $data['tags']);
             $link->tags()->sync($tagIds);
         }
-
+        Log::info('STORE HIT', $request->all());
         return (new LinkResource($link->load('tags')))->response()->setStatusCode(201);
     }
 
@@ -156,5 +160,21 @@ class LinkController extends Controller
             ->whereIn('name', $clean->all())
             ->pluck('id')
             ->all();
+    }
+
+    public function toggleFavourite(Request $request, Link $link)
+
+    {
+        $this->authorize('update', $link);
+
+        if ($request->has('is_favourite')) {
+            $link->is_favourite = (bool) $request->boolean('is_favourite');
+        } else {
+            $link->is_favourite = ! $link->is_favourite;
+        }
+
+        $link->save();
+
+        return new LinkResource($link->load('tags'));
     }
 }

@@ -12,8 +12,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::patch('links/{link}/favourite', [LinkController::class, 'toggleFavourite']);
+});
 
-    // Links
-
-    Route::apiResource('links', [LinkController::class]);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('links', LinkController::class);
 });

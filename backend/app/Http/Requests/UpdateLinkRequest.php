@@ -27,7 +27,7 @@ class UpdateLinkRequest extends FormRequest
             'title' => ['sometimes', 'nullable', 'string', 'max:255'],
             'notes' => ['sometimes', 'nullable', 'string'],
             'status' => ['sometimes', Rule::in(['saved', 'reading', 'done'])],
-            'is_favorite' => ['sometimes', 'boolean'],
+            'is_favourite' => ['sometimes', 'boolean'],
             'tags' => ['sometimes', 'nullable', 'array'],
             'tags.*' => ['string', 'max:120'],
         ];
