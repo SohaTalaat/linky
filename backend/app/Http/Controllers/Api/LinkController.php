@@ -26,11 +26,15 @@ class LinkController extends Controller
 
         // Filter
         if ($search = $request->string('search')->trim()->toString()) {
-            $query->where(function ($sub) use ($search) {
-                $sub->where('title', 'like', "%{$search}%")
-                    ->orWhere('url', 'like', "%{$search}%")
-                    ->orWhere('notes', 'like', "%{$search}%");
-            });
+            // $query->where(function ($sub) use ($search) {
+            //     $sub->where('title', 'like', "%{$search}%")
+            //         ->orWhere('url', 'like', "%{$search}%")
+            //         ->orWhere('notes', 'like', "%{$search}%");
+            $query->whereRaw(
+                "MATCH(title, notes, url) AGAINST (? IN BOOLEAN MODE)",
+                [$search . '*']
+            );
+            // });
         }
 
         if ($status = $request->string('status')->trim()->toString()) {
