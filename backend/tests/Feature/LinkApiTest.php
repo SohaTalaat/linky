@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\Link;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+// use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class LinkApiTest extends TestCase
@@ -28,7 +28,7 @@ class LinkApiTest extends TestCase
             'title' => 'Laravel',
             'notes' => 'Docs',
             'status' => 'saved',
-            'is_favorite' => true,
+            'is_favourite' => true,
             'tags' => ['laravel', 'backend'],
         ];
 
@@ -40,7 +40,7 @@ class LinkApiTest extends TestCase
         $this->assertDatabaseHas('links', [
             'user_id' => $user->id,
             'url' => 'https://laravel.com',
-            'is_favorite' => 1,
+            'is_favourite' => 1,
         ]);
 
         $linkId = $res->json('data.id');
@@ -55,8 +55,8 @@ class LinkApiTest extends TestCase
     {
         $user = User::factory()->create();
 
-        Link::factory()->for($user)->create(['title' => 'Laravel Tips', 'status' => 'saved', 'is_favorite' => 1]);
-        Link::factory()->for($user)->create(['title' => 'PHP Basics', 'status' => 'done', 'is_favorite' => 0]);
+        Link::factory()->for($user)->create(['title' => 'Laravel Tips', 'status' => 'saved', 'is_favourite' => 1]);
+        Link::factory()->for($user)->create(['title' => 'PHP Basics', 'status' => 'done', 'is_favourite' => 0]);
 
         $this->actingAs($user, 'sanctum')
             ->getJson('/api/links?search=Laravel')
@@ -69,7 +69,7 @@ class LinkApiTest extends TestCase
             ->assertJsonCount(1, 'data');
 
         $this->actingAs($user, 'sanctum')
-            ->getJson('/api/links?favorite=true')
+            ->getJson('/api/links?favourite=true')
             ->assertOk()
             ->assertJsonCount(1, 'data');
     }
@@ -86,19 +86,19 @@ class LinkApiTest extends TestCase
             ->assertStatus(403);
     }
 
-    public function test_user_can_toggle_favorite(): void
+    public function test_user_can_toggle_favourite(): void
     {
         $user = User::factory()->create();
-        $link = Link::factory()->for($user)->create(['is_favorite' => 0]);
+        $link = Link::factory()->for($user)->create(['is_favourite' => 0]);
 
         $this->actingAs($user, 'sanctum')
-            ->patchJson("/api/links/{$link->id}/favorite")
+            ->patchJson("/api/links/{$link->id}/favourite")
             ->assertOk()
-            ->assertJsonPath('data.is_favorite', true);
+            ->assertJsonPath('data.is_favourite', true);
 
         $this->assertDatabaseHas('links', [
             'id' => $link->id,
-            'is_favorite' => 1,
+            'is_favourite' => 1,
         ]);
     }
 }

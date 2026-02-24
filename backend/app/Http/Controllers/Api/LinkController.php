@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLinkRequest;
 use App\Http\Requests\UpdateLinkRequest;
 use App\Http\Resources\LinkResource;
+use App\Jobs\FetchLinkMetadataJob;
 use App\Models\Link;
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class LinkController extends Controller
@@ -26,15 +28,19 @@ class LinkController extends Controller
 
         // Filter
         if ($search = $request->string('search')->trim()->toString()) {
-            // $query->where(function ($sub) use ($search) {
-            //     $sub->where('title', 'like', "%{$search}%")
-            //         ->orWhere('url', 'like', "%{$search}%")
-            //         ->orWhere('notes', 'like', "%{$search}%");
-            $query->whereRaw(
-                "MATCH(title, notes, url) AGAINST (? IN BOOLEAN MODE)",
-                [$search . '*']
-            );
-            // });
+
+            if (DB::getDriverName() === 'mysql') {
+                $query->whereRaw(
+                    "MATCH(title, notes, url) AGAINST (? IN BOOLEAN MODE)",
+                    [$search . '*']
+                );
+            } else {
+                $query->where(function ($sub) use ($search) {
+                    $sub->where('title', 'like', "%{$search}%")
+                        ->orWhere('url', 'like', "%{$search}%")
+                        ->orWhere('notes', 'like', "%{$search}%");
+                });
+            }
         }
 
         if ($status = $request->string('status')->trim()->toString()) {
@@ -86,6 +92,8 @@ class LinkController extends Controller
             'status' => $data['status'] ?? 'saved',
             'is_favourite' => $data['is_favourite'] ?? false,
         ]);
+
+        FetchLinkMetadataJob::dispatch($link->id)->onQueue('metadata');
 
         if (!empty($data['tags'])) {
             $tagIds = $this->upsertUserTagsAndGetIds($user->id, $data['tags']);
