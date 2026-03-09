@@ -9,6 +9,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class FetchLinkMetadataJob implements ShouldQueue
 {
@@ -39,6 +40,8 @@ class FetchLinkMetadataJob implements ShouldQueue
 
         $url = $link->url;
 
+        Log::info('JOB BEFORE HTTP', ['url' => $url, 'link_id' => $this->linkId]);
+
         $response = Http::timeout(10)
             ->withHeaders([
                 'User-Agent' => 'LinksAppBot/1.0 (+https://example.com)',
@@ -61,6 +64,8 @@ class FetchLinkMetadataJob implements ShouldQueue
             'site_name' => $meta['site_name'] ?: $link->site_name,
             'favicon' => $meta['favicon'] ?: $link->favicon
         ]);
+
+        $link->save();
     }
 
     private function parseHtmlMetadata(string $html, string $url): array
