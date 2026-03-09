@@ -182,43 +182,51 @@ N[vendor]
 
 ```mermaid
 erDiagram
+    USERS {
+        bigint id PK
+        string name
+        string email UK
+        string password
+        timestamp created_at
+        timestamp updated_at
+    }
 
-users {
-bigint id
-string name
-string email
-string password
-timestamps
-}
+    LINKS {
+        bigint id PK
+        bigint user_id FK
+        text url
+        string title
+        text description
+        string image
+        string site_name
+        string favicon
+        text notes
+        string status
+        boolean is_favorite
+        timestamp last_opened_at
+        timestamp created_at
+        timestamp updated_at
+    }
 
-links {
-bigint id
-bigint user_id
-string url
-string title
-text notes
-string status
-boolean is_favorite
-timestamp last_opened_at
-timestamps
-}
+    TAGS {
+        bigint id PK
+        bigint user_id FK
+        string name
+        timestamp created_at
+        timestamp updated_at
+    }
 
-tags {
-bigint id
-bigint user_id
-string name
-timestamps
-}
+    LINK_TAG {
+        bigint link_id FK
+        bigint tag_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
 
-link_tag {
-bigint link_id
-bigint tag_id
-}
-
-users ||--o{ links : owns
-users ||--o{ tags : owns
-links ||--o{ link_tag : contains
-tags ||--o{ link_tag : used_in
+    USERS ||--o{ LINKS : owns
+    USERS ||--o{ TAGS : creates
+    LINKS ||--o{ LINK_TAG : contains
+    TAGS ||--o{ LINK_TAG : used_in
 ```
 
 ### Relationship Summary
