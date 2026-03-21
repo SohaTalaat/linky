@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { LoadingPage } from "../pages/LoginPage";
-import { RegisterPage } from "../pages/RegisterPage";
-import { LinksPage } from "../pages/LinksPage";
-import { DashboardPage } from "../pages/DashboardPage";
-import { ProtectedRoute } from "../routes/ProtectedRoute";
-import { GuestRoute } from "../routes/GuestRoute";
+import LoginPage from "../pages/LoginPage";
+import RegisterPage from "../pages/RegisterPage";
+import LinksPage from "../pages/LinksPage";
+import DashboardPage from "../pages/DashboardPage";
+import ProtectedRoute from "../routes/ProtectedRoute";
+import GuestRoute from "../routes/GuestRoute";
 
 export default function AppRouter() {
   return (
@@ -14,7 +14,7 @@ export default function AppRouter() {
           path="/login"
           element={
             <GuestRoute>
-              <LoadingPage />
+              <LoginPage />
             </GuestRoute>
           }
         />
