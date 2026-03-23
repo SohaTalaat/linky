@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { getLinks, createLink } from "../api/links";
+import { getLinks, createLink, deleteLink } from "../api/links";
+import LinkCard from "../components/links/LinkCard";
 
 export default function LinksPage() {
   const [links, setLinks] = useState([]);
@@ -44,6 +45,20 @@ export default function LinksPage() {
     }
   };
 
+  const handleDelete = async (id) => {
+    const confirmed = confirm("Delete This Link?");
+
+    if (!confirmed) return;
+
+    try {
+      await deleteLink(id);
+
+      setLinks((prev) => prev.filter((l) => l.id !== id));
+    } catch {
+      alert("Failed to delete");
+    }
+  };
+
   if (loading) return <p>Loading links...</p>;
   if (error) return <p>{error}</p>;
 
@@ -66,15 +81,9 @@ export default function LinksPage() {
       {/* List */}
       {links.length === 0 && <p>No Links Yet</p>}
 
-      <ul>
-        {links.map((link) => (
-          <li key={link.id}>
-            <a href={link.url} target="_blank">
-              {link.title || link.url}
-            </a>
-          </li>
-        ))}
-      </ul>
+      {links.map((link) => (
+        <LinkCard key={link.id} link={link} onDelete={handleDelete} />
+      ))}
     </div>
   );
 }
