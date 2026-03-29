@@ -14,11 +14,14 @@ export default function LinksPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
 
+  const [favoriteOnly, setFavoriteOnly] = useState(false);
+
   const fetchLinks = async () => {
     try {
       const res = await getLinks({
         search: search || undefined,
         status: status || undefined,
+        favourite: favoriteOnly ? true : undefined,
       });
       setLinks(res.data.data);
     } catch {
@@ -29,8 +32,12 @@ export default function LinksPage() {
   };
 
   useEffect(() => {
-    fetchLinks();
-  }, [search, status]);
+    const delay = setTimeout(() => {
+      fetchLinks();
+    }, 400);
+
+    return () => clearTimeout(delay);
+  }, [search, status, favoriteOnly]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -136,6 +143,16 @@ export default function LinksPage() {
           <option value="done">Done</option>
         </select>
       </div>
+
+      <label>
+        <input
+          type="checkbox"
+          checked={favoriteOnly}
+          onChange={(e) => setFavoriteOnly(e.target.checked)}
+          style={{ marginBottom: "20px" }}
+        />
+        Favorites Only
+      </label>
 
       {/* List */}
       {links.length === 0 && <p>No Links Yet</p>}
