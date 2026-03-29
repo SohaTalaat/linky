@@ -11,9 +11,15 @@ export default function LinksPage() {
   const [url, setUrl] = useState("");
   const [creating, setCreating] = useState(false);
 
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
+
   const fetchLinks = async () => {
     try {
-      const res = await getLinks();
+      const res = await getLinks({
+        search: search || undefined,
+        status: status || undefined,
+      });
       setLinks(res.data.data);
     } catch {
       setError("Failed to Load Links");
@@ -24,7 +30,7 @@ export default function LinksPage() {
 
   useEffect(() => {
     fetchLinks();
-  }, []);
+  }, [search, status]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -110,6 +116,26 @@ export default function LinksPage() {
           {creating ? "Adding..." : "Add"}
         </button>
       </form>
+
+      <div style={{ margin: "20px 0" }}>
+        {/* Search */}
+
+        <input
+          type="text"
+          placeholder="Search..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        {/* Status filter */}
+
+        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="">All</option>
+          <option value="saved">Saved</option>
+          <option value="reading">Reading</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
 
       {/* List */}
       {links.length === 0 && <p>No Links Yet</p>}
