@@ -78,6 +78,20 @@ export default function LinksPage() {
     }
   };
 
+  const handleUpdateStatus = async (link, newStatus) => {
+    try {
+      await updateLink(link.id, {
+        status: newStatus,
+      });
+
+      setLinks((prev) =>
+        prev.map((l) => (l.id === link.id ? { ...l, status: newStatus } : l)),
+      );
+    } catch {
+      alert("Failed to update status");
+    }
+  };
+
   if (loading) return <p>Loading links...</p>;
   if (error) return <p>{error}</p>;
 
@@ -106,6 +120,7 @@ export default function LinksPage() {
           link={link}
           onDelete={handleDelete}
           onToggleFavorite={handleToggleFavorite}
+          onUpdateStatus={handleUpdateStatus}
         />
       ))}
     </div>

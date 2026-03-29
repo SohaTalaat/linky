@@ -1,4 +1,15 @@
-export default function LinkCard({ link, onDelete, onToggleFavorite }) {
+export default function LinkCard({
+  link,
+  onDelete,
+  onToggleFavorite,
+  onUpdateStatus,
+}) {
+  const statusColor = {
+    saved: "grey",
+    reading: "orange",
+    done: "green",
+  };
+
   return (
     <div
       style={{
@@ -18,6 +29,24 @@ export default function LinkCard({ link, onDelete, onToggleFavorite }) {
       >
         {link.is_favourite ? "★" : "☆"}
       </button>
+
+      {/* Status */}
+
+      <select
+        value={link.status}
+        onChange={(e) => onUpdateStatus(link, e.target.value)}
+        style={{
+          padding: "4px 8px",
+          borderRadius: "8px",
+          backgroundColor: statusColor[link.status],
+          color: "white",
+          marginLeft: "10px",
+        }}
+      >
+        <option value="saved">Saved</option>
+        <option value="reading">Reading</option>
+        <option value="done">Done</option>
+      </select>
       <button onClick={() => onDelete(link.id)}>Delete</button>
     </div>
   );
