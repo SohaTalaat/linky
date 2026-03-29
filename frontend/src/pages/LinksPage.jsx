@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getLinks, createLink, deleteLink } from "../api/links";
 import LinkCard from "../components/links/LinkCard";
+import { updateLink } from "../api/links";
 
 export default function LinksPage() {
   const [links, setLinks] = useState([]);
@@ -59,6 +60,24 @@ export default function LinksPage() {
     }
   };
 
+  const handleToggleFavorite = async (link) => {
+    const newValue = !link.is_favourite;
+
+    try {
+      await updateLink(link.id, {
+        is_favourite: newValue,
+      });
+
+      setLinks((prev) =>
+        prev.map((l) =>
+          l.id === link.id ? { ...l, is_favourite: newValue } : l,
+        ),
+      );
+    } catch {
+      alert("Failed to update Favorite");
+    }
+  };
+
   if (loading) return <p>Loading links...</p>;
   if (error) return <p>{error}</p>;
 
@@ -82,7 +101,12 @@ export default function LinksPage() {
       {links.length === 0 && <p>No Links Yet</p>}
 
       {links.map((link) => (
-        <LinkCard key={link.id} link={link} onDelete={handleDelete} />
+        <LinkCard
+          key={link.id}
+          link={link}
+          onDelete={handleDelete}
+          onToggleFavorite={handleToggleFavorite}
+        />
       ))}
     </div>
   );

@@ -1,4 +1,4 @@
-export default function LinkCard({ link, onDelete }) {
+export default function LinkCard({ link, onDelete, onToggleFavorite }) {
   return (
     <div
       style={{
@@ -11,6 +11,13 @@ export default function LinkCard({ link, onDelete }) {
         <strong>{link.title || link.url}</strong>
       </a>
       <p>{link.notes}</p>
+      {/* Favorite */}
+      <button
+        style={{ fontSize: "20px", color: link.is_favourite ? "gold" : "grey" }}
+        onClick={() => onToggleFavorite(link)}
+      >
+        {link.is_favourite ? "★" : "☆"}
+      </button>
       <button onClick={() => onDelete(link.id)}>Delete</button>
     </div>
   );

@@ -8,6 +8,10 @@ export const createLink = (data) => {
     return api.post("/links", data);
 };
 
+export const updateLink = (id, data) => {
+    return api.patch(`/links/${id}`, data);
+};
+
 export const deleteLink = (id) => {
     return api.delete(`/links/${id}`);
 };
