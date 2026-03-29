@@ -109,63 +109,74 @@ export default function LinksPage() {
   if (error) return <p>{error}</p>;
 
   return (
-    <div>
-      <h1>My Links</h1>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">My Links</h1>
 
-      <form onSubmit={handleCreate}>
-        <input
-          type="text"
-          placeholder="Paste your link..."
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-        />
-        <button type="submit" disabled={creating}>
-          {creating ? "Adding..." : "Add"}
-        </button>
-      </form>
+        <form onSubmit={handleCreate} className="flex gap-2 mb-6">
+          <input
+            type="text"
+            placeholder="Paste your link..."
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:blue-400"
+          />
+          <button
+            type="submit"
+            disabled={creating}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition"
+          >
+            {creating ? "Adding..." : "Add"}
+          </button>
+        </form>
 
-      <div style={{ margin: "20px 0" }}>
         {/* Search */}
 
-        <input
-          type="text"
-          placeholder="Search..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <div className="flex gap-3 mb-6 items-center flex-wrap">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border rounded-lg px-3 py-2"
+          />
 
-        {/* Status filter */}
+          {/* Status filter */}
 
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="">All</option>
-          <option value="saved">Saved</option>
-          <option value="reading">Reading</option>
-          <option value="done">Done</option>
-        </select>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="border rounded-lg px-3 py-2"
+          >
+            <option value="">All</option>
+            <option value="saved">Saved</option>
+            <option value="reading">Reading</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+
+        <label className="flex items-center gap-2 mb-5">
+          <input
+            type="checkbox"
+            checked={favoriteOnly}
+            onChange={(e) => setFavoriteOnly(e.target.checked)}
+          />
+          Favorites Only
+        </label>
+
+        {/* List */}
+        {links.length === 0 && <p>No Links Yet</p>}
+
+        {links.map((link) => (
+          <LinkCard
+            key={link.id}
+            link={link}
+            onDelete={handleDelete}
+            onToggleFavorite={handleToggleFavorite}
+            onUpdateStatus={handleUpdateStatus}
+          />
+        ))}
       </div>
-
-      <label>
-        <input
-          type="checkbox"
-          checked={favoriteOnly}
-          onChange={(e) => setFavoriteOnly(e.target.checked)}
-          style={{ marginBottom: "20px" }}
-        />
-        Favorites Only
-      </label>
-
-      {/* List */}
-      {links.length === 0 && <p>No Links Yet</p>}
-
-      {links.map((link) => (
-        <LinkCard
-          key={link.id}
-          link={link}
-          onDelete={handleDelete}
-          onToggleFavorite={handleToggleFavorite}
-          onUpdateStatus={handleUpdateStatus}
-        />
-      ))}
     </div>
   );
 }
