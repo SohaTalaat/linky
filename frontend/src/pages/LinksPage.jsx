@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getLinks, createLink, deleteLink } from "../api/links";
 import LinkCard from "../components/links/LinkCard";
 import { updateLink } from "../api/links";
+import { getTags } from "../api/tags";
 
 export default function LinksPage() {
   const [links, setLinks] = useState([]);
@@ -15,6 +16,9 @@ export default function LinksPage() {
   const [status, setStatus] = useState("");
 
   const [favoriteOnly, setFavoriteOnly] = useState(false);
+
+  const [tags, setTags] = useState([]);
+  const [selectedTag, setSelectedTag] = useState("");
 
   const fetchLinks = async () => {
     try {
@@ -38,6 +42,10 @@ export default function LinksPage() {
 
     return () => clearTimeout(delay);
   }, [search, status, favoriteOnly]);
+
+  useEffect(() => {
+    getTags().then((res) => setTags(res.data.data));
+  }, []);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -163,6 +171,26 @@ export default function LinksPage() {
           />
           Favorites Only
         </label>
+
+        <div className="flex gap-2 mb-4">
+          <input
+            placeholder="Search..."
+            className="px-3 py-2 border rounded-lg"
+          />
+
+          <select
+            value={selectedTag}
+            onChange={(e) => setSelectedTag(e.target.value)}
+            className="px-3 py-2 border rounded-lg"
+          >
+            <option value="">All</option>
+            {tags.map((tag) => (
+              <option key={tag.id} value={tag.name}>
+                {tag.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
         {/* List */}
         {links.length === 0 && <p>No Links Yet</p>}
