@@ -20,12 +20,16 @@ export default function LinksPage() {
   const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState("");
 
+  const [tagsInput, setTagsInput] = useState("");
+  const [notesInput, setNotesInput] = useState("");
+
   const fetchLinks = async () => {
     try {
       const res = await getLinks({
         search: search || undefined,
         status: status || undefined,
         favourite: favoriteOnly ? true : undefined,
+        tag: selectedTag || undefined,
       });
       setLinks(res.data.data);
     } catch {
@@ -41,10 +45,12 @@ export default function LinksPage() {
     }, 400);
 
     return () => clearTimeout(delay);
-  }, [search, status, favoriteOnly]);
+  }, [selectedTag, search, status, favoriteOnly]);
 
   useEffect(() => {
-    getTags().then((res) => setTags(res.data.data));
+    getTags().then((res) => {
+      setTags(res.data.data);
+    });
   }, []);
 
   const handleCreate = async (e) => {
@@ -55,10 +61,23 @@ export default function LinksPage() {
     setCreating(true);
 
     try {
-      const res = await createLink({ url });
+      const tagsToArray = tagsInput
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+
+      const res = await createLink({
+        url,
+        notes: notesInput.trim() || undefined,
+        tags: tagsToArray,
+      });
 
       setLinks((prev) => [res.data.data, ...prev]);
+      const tagsRes = await getTags();
+      setTags(tagsRes.data.data);
       setUrl("");
+      setNotesInput("");
+      setTagsInput("");
     } catch (err) {
       console.log(err);
       alert("Failed to create link");
@@ -117,17 +136,33 @@ export default function LinksPage() {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">My Links</h1>
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">My Links</h1>
 
-        <form onSubmit={handleCreate} className="flex gap-2 mb-6">
+        <form onSubmit={handleCreate} className="flex flex-col gap-2 mb-6">
           <input
             type="text"
             placeholder="Paste your link..."
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:blue-400"
+          />
+
+          <input
+            type="text"
+            placeholder="Tags (Comma seperated)"
+            value={tagsInput}
+            onChange={(e) => setTagsInput(e.target.value)}
+            className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+
+          <textarea
+            placeholder="Notes (optional)"
+            value={notesInput}
+            onChange={(e) => setNotesInput(e.target.value)}
+            rows={3}
+            className="flex-1 resize-y border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <button
             type="submit"
@@ -172,24 +207,29 @@ export default function LinksPage() {
           Favorites Only
         </label>
 
-        <div className="flex gap-2 mb-4">
-          <input
-            placeholder="Search..."
-            className="px-3 py-2 border rounded-lg"
-          />
+        {/* Tags */}
 
-          <select
-            value={selectedTag}
-            onChange={(e) => setSelectedTag(e.target.value)}
-            className="px-3 py-2 border rounded-lg"
+        <div className="flex gap-2 flex-wrap mb-4">
+          <button
+            onClick={() => setSelectedTag("")}
+            className={`px-4 py-1 rounded-full ${selectedTag === "" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
           >
-            <option value="">All</option>
-            {tags.map((tag) => (
-              <option key={tag.id} value={tag.name}>
-                {tag.name}
-              </option>
-            ))}
-          </select>
+            All
+          </button>
+
+          {tags?.map((tag) => (
+            <button
+              key={tag.id}
+              onClick={() => setSelectedTag(tag.name)}
+              className={`px-3 py-1 rounded-full transition ${
+                selectedTag === tag.name
+                  ? "bg-blue-500 text-white shadow"
+                  : "bg-gray-200 hover:bg-gray-300"
+              }`}
+            >
+              {tag.name}
+            </button>
+          ))}
         </div>
 
         {/* List */}

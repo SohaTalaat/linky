@@ -1,9 +1,9 @@
-import axios from "axios";
+import api from "./axios";
 
-export const getTags = () => axios.get('/tags');
+export const getTags = () => api.get("/tags");
 
 export const attachTags = (linkId, tags) =>
-    axios.post(`/links/${linkId}/tags`, { tags });
+  api.post(`/links/${linkId}/tags`, { tags });
 
 export const detachTag = (linkId, tagId) =>
-    axios.delete(`/links/${linkId}/tags/${tagId}`);
+  api.delete(`/links/${linkId}/tags/${tagId}`);

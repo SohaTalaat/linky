@@ -4,60 +4,98 @@ export default function LinkCard({
   onToggleFavorite,
   onUpdateStatus,
 }) {
+  const statusStyles = {
+    saved: "bg-slate-100 text-slate-700 border-slate-200",
+    reading: "bg-amber-100 text-amber-800 border-amber-200",
+    done: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  };
+
+  const host = (() => {
+    try {
+      return new URL(link.url).hostname.replace(/^www\./, "");
+    } catch {
+      return null;
+    }
+  })();
+
   return (
-    <div className="bg-white p-4 rounded-xl shadow-sm border mb-4">
-      <a
-        href={link.url}
-        target="_blank"
-        rel="noopener"
-        noreferrer
-        className="font-semibold text-blue-600 hover:underline"
-      >
-        <strong>{link.title || link.url}</strong>
-      </a>
-      {/* Notes */}
-
-      {link.notes && <p className="text-gray-600 mt-1">{link.notes}</p>}
-
-      {/* Actions */}
-
-      <div className="flex items-center gap-3 mt-3">
-        {/* Favorite */}
+    <article className="mb-4 rounded-2xl border border-slate-200 bg-white/95 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+      <div className="flex items-start gap-3">
         <button
-          className={`text-xl ${link.is_favourite ? "text-yellow-500" : "text-gray-400"}`}
+          className={`text-2xl leading-none transition ${
+            link.is_favourite
+              ? "text-amber-500 hover:text-amber-600"
+              : "text-slate-300 hover:text-amber-400"
+          }`}
           onClick={() => onToggleFavorite(link)}
+          aria-label={link.is_favourite ? "Remove favorite" : "Mark favorite"}
+          title={link.is_favourite ? "Favorited" : "Mark as favorite"}
         >
           {link.is_favourite ? "★" : "☆"}
         </button>
 
-        {/* Status */}
+        <div className="min-w-0 flex-1">
+          <a
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block truncate text-lg font-semibold text-slate-800 hover:text-blue-700 hover:underline"
+            title={link.title || link.url}
+          >
+            {link.title || link.url}
+          </a>
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+            <span className="truncate">{host || "External link"}</span>
+            <span className="text-slate-300">•</span>
+            <span
+              className={`rounded-full border px-2 py-0.5 font-medium ${
+                statusStyles[link.status] ||
+                "bg-slate-100 text-slate-700 border-slate-200"
+              }`}
+            >
+              {link.status}
+            </span>
+          </div>
+        </div>
+      </div>
 
+      {link.notes && (
+        <p className="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-sm leading-relaxed text-slate-600">
+          {link.notes}
+        </p>
+      )}
+
+      {link.tags?.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {link.tags.map((tag) => (
+            <span
+              key={tag.id}
+              className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"
+            >
+              #{tag.name}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-4 flex items-center gap-2">
         <select
           value={link.status}
           onChange={(e) => onUpdateStatus(link, e.target.value)}
-          className="border rounded px-2 py-1 text-sm"
+          className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
         >
           <option value="saved">Saved</option>
           <option value="reading">Reading</option>
           <option value="done">Done</option>
         </select>
 
-        {/* <span
-          className={`px-2 py-1 text-xs rounded-full
-          ${link.status === "saved" && "bg-gray-200 text-gray-700"}
-          ${link.status === "reading" && "bg-yellow-100 text-yellow-700"}
-          ${link.status === "done" && "bg-green-100 text-green-700"}
-        `}
-        >
-          {link.status}
-        </span> */}
         <button
           onClick={() => onDelete(link.id)}
-          className="text-red-500 hover:text-red-700 text-sm ml-auto"
+          className="ml-auto rounded-lg border border-rose-200 px-3 py-1.5 text-sm font-medium text-rose-600 transition hover:bg-rose-50 hover:text-rose-700"
         >
           Delete
         </button>
       </div>
-    </div>
+    </article>
   );
 }
