@@ -3,6 +3,7 @@ import { getLinks, createLink, deleteLink } from "../api/links";
 import LinkCard from "../components/links/LinkCard";
 import { updateLink } from "../api/links";
 import { getTags } from "../api/tags";
+import { attachTags, detachTag } from "../api/tags";
 
 export default function LinksPage() {
   const [links, setLinks] = useState([]);
@@ -132,6 +133,34 @@ export default function LinksPage() {
     }
   };
 
+  const handleAddTag = async (linkId, tagName) => {
+    try {
+      const res = await attachTags(linkId, tagName);
+
+      setLinks((prev) =>
+        prev.map((l) =>
+          l.id === linkId ? { ...l, tags: res.data.data.tags } : l,
+        ),
+      );
+    } catch {
+      alert("Failed to add tag");
+    }
+  };
+
+  const handleRemoveTag = async (linkId, tagId) => {
+    try {
+      const res = await detachTag(linkId, tagId);
+
+      setLinks((prev) =>
+        prev.map((l) =>
+          l.id === linkId ? { ...l, tags: res.data.data.tags } : l,
+        ),
+      );
+    } catch {
+      alert("Failed to remove tag");
+    }
+  };
+
   if (loading) return <p>Loading links...</p>;
   if (error) return <p>{error}</p>;
 
@@ -242,6 +271,8 @@ export default function LinksPage() {
             onDelete={handleDelete}
             onToggleFavorite={handleToggleFavorite}
             onUpdateStatus={handleUpdateStatus}
+            onAddTag={handleAddTag}
+            onRemoveTag={handleRemoveTag}
           />
         ))}
       </div>
