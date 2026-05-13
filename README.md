@@ -87,7 +87,6 @@ Users can delete links that are no longer needed.
 - Search and filtering
 - Background metadata extraction
 - Automated testing
-- CI pipeline with GitHub Actions
 
 ---
 
