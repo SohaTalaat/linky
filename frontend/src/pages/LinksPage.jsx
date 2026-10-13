@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getLinks, createLink, deleteLink } from "../api/links";
 import LinkCard from "../components/links/LinkCard";
 import { updateLink } from "../api/links";
@@ -24,7 +24,7 @@ export default function LinksPage() {
   const [tagsInput, setTagsInput] = useState("");
   const [notesInput, setNotesInput] = useState("");
 
-  const fetchLinks = async () => {
+  const fetchLinks = useCallback(async () => {
     try {
       const res = await getLinks({
         search: search || undefined,
@@ -38,7 +38,7 @@ export default function LinksPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, status, favoriteOnly, selectedTag]);
 
   useEffect(() => {
     const delay = setTimeout(() => {
@@ -46,7 +46,7 @@ export default function LinksPage() {
     }, 400);
 
     return () => clearTimeout(delay);
-  }, [selectedTag, search, status, favoriteOnly]);
+  }, [fetchLinks]);
 
   useEffect(() => {
     getTags().then((res) => {
